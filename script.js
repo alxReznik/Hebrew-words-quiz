@@ -1,0 +1,149 @@
+const allEntries = Object.entries(images);
+const MAX_QUESTIONS = 25;
+const WIN_SCORE = 20;
+
+if (allEntries.length < 4) {
+    throw new Error("At least 4 words are required for this quiz.");
+}
+
+let roundPool = [...allEntries];
+let currentCorrectWord = "";
+let totalQuestions = 0;
+let score = 0;
+let gameEnded = false;
+
+const quizImage = document.getElementById("quiz-image");
+const optionsContainer = document.getElementById("options");
+const feedback = document.getElementById("feedback");
+const nextBtn = document.getElementById("next-btn");
+const scoreLabel = document.getElementById("score");
+const restartBtn = document.getElementById("restart-btn");
+
+function shuffle(array) {
+    const copy = [...array];
+    for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+}
+
+function pickRandomEntry(pool) {
+    const index = Math.floor(Math.random() * pool.length);
+    return { entry: pool[index], index };
+}
+
+function updateScore() {
+    scoreLabel.textContent = `ניקוד: ${score} | שאלה ${totalQuestions} / ${MAX_QUESTIONS}`;
+}
+
+function endGame() {
+    gameEnded = true;
+    nextBtn.hidden = true;
+
+    if (score >= WIN_SCORE) {
+        feedback.textContent = `ניצחת! ענית נכון על ${score} מתוך ${MAX_QUESTIONS}.`;
+    } else {
+        feedback.textContent = `הפסדת. ענית נכון על ${score} מתוך ${MAX_QUESTIONS}.`;
+    }
+}
+
+function buildOptions(correctWord) {
+    const wrongWords = allEntries
+        .map(([word]) => word)
+        .filter((word) => word !== correctWord);
+
+    const selectedWrong = shuffle(wrongWords).slice(0, 3);
+    return shuffle([correctWord, ...selectedWrong]);
+}
+
+function lockOptions() {
+    const buttons = optionsContainer.querySelectorAll("button");
+    buttons.forEach((button) => {
+        button.disabled = true;
+    });
+}
+
+function handleAnswer(button, selectedWord) {
+    if (gameEnded) {
+        return;
+    }
+
+    totalQuestions += 1;
+
+    if (selectedWord === currentCorrectWord) {
+        score += 1;
+        button.classList.add("correct");
+        feedback.textContent = "נכון!";
+    } else {
+        button.classList.add("wrong");
+        feedback.textContent = `לא נכון. התשובה הנכונה היא: ${currentCorrectWord}`;
+
+        const buttons = optionsContainer.querySelectorAll("button");
+        buttons.forEach((btn) => {
+            if (btn.dataset.word === currentCorrectWord) {
+                btn.classList.add("correct");
+            }
+        });
+    }
+
+    updateScore();
+    lockOptions();
+
+    if (totalQuestions >= MAX_QUESTIONS) {
+        endGame();
+        return;
+    }
+
+    nextBtn.hidden = false;
+}
+
+function nextRound() {
+    if (gameEnded) {
+        return;
+    }
+
+    if (roundPool.length === 0) {
+        roundPool = [...allEntries];
+    }
+
+    const { entry, index } = pickRandomEntry(roundPool);
+    roundPool.splice(index, 1);
+
+    const [word, imageUrl] = entry;
+    currentCorrectWord = word;
+    quizImage.src = imageUrl;
+
+    const options = buildOptions(word);
+    optionsContainer.innerHTML = "";
+
+    options.forEach((optionWord) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = optionWord;
+        button.className = "option-btn";
+        button.dataset.word = optionWord;
+
+        button.addEventListener("click", () => handleAnswer(button, optionWord));
+        optionsContainer.appendChild(button);
+    });
+
+    feedback.textContent = "";
+    nextBtn.hidden = true;
+}
+
+function restartGame() {
+    roundPool = [...allEntries];
+    currentCorrectWord = "";
+    totalQuestions = 0;
+    score = 0;
+    gameEnded = false;
+
+    updateScore();
+    nextRound();
+}
+
+nextBtn.addEventListener("click", nextRound);
+restartBtn.addEventListener("click", restartGame);
+updateScore();
+nextRound();
