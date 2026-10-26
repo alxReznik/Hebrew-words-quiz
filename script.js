@@ -11,6 +11,7 @@ let currentCorrectWord = "";
 let totalQuestions = 0;
 let score = 0;
 let gameEnded = false;
+let wordScores = createWordScores();
 
 const quizImage = document.getElementById("quiz-image");
 const optionsContainer = document.getElementById("options");
@@ -18,6 +19,28 @@ const feedback = document.getElementById("feedback");
 const nextBtn = document.getElementById("next-btn");
 const scoreLabel = document.getElementById("score");
 const restartBtn = document.getElementById("restart-btn");
+const wordScoresContainer = document.getElementById("word-scores");
+
+function createWordScores() {
+    const scores = {};
+    allEntries.forEach(([word]) => {
+        scores[word] = { correct: 0, wrong: 0 };
+    });
+    return scores;
+}
+
+function renderWordScores() {
+    if (!wordScoresContainer) {
+        return;
+    }
+
+    const rows = allEntries.map(([word]) => {
+        const stats = wordScores[word];
+        return `<div class="word-score-row"><span>${word}</span><span>נָכוֹן: ${stats.correct} | לֹא נָכוֹן: ${stats.wrong}</span></div>`;
+    });
+
+    wordScoresContainer.innerHTML = rows.join("");
+}
 
 function shuffle(array) {
     const copy = [...array];
@@ -34,7 +57,7 @@ function pickRandomEntry(pool) {
 }
 
 function updateScore() {
-    scoreLabel.textContent = `ניקוד: ${score} | שאלה ${totalQuestions} / ${MAX_QUESTIONS}`;
+    scoreLabel.textContent = `נִיקּוּד: ${score} | שְׁאֵלָה ${totalQuestions} / ${MAX_QUESTIONS}`;
 }
 
 function endGame() {
@@ -42,9 +65,9 @@ function endGame() {
     nextBtn.hidden = true;
 
     if (score >= WIN_SCORE) {
-        feedback.textContent = `ניצחת! ענית נכון על ${score} מתוך ${MAX_QUESTIONS}.`;
+        feedback.textContent = `נִיצַּחְתָּ! עָנִיתָ נָכוֹן עַל ${score} מִתּוֹךְ ${MAX_QUESTIONS}.`;
     } else {
-        feedback.textContent = `הפסדת. ענית נכון על ${score} מתוך ${MAX_QUESTIONS}.`;
+        feedback.textContent = `הִפְסַדְתָּ. עָנִיתָ נָכוֹן עַל ${score} מִתּוֹךְ ${MAX_QUESTIONS}.`;
     }
 }
 
@@ -73,11 +96,13 @@ function handleAnswer(button, selectedWord) {
 
     if (selectedWord === currentCorrectWord) {
         score += 1;
+        wordScores[currentCorrectWord].correct += 1;
         button.classList.add("correct");
-        feedback.textContent = "נכון!";
+        feedback.textContent = "נָכוֹן!";
     } else {
+        wordScores[currentCorrectWord].wrong += 1;
         button.classList.add("wrong");
-        feedback.textContent = `לא נכון. התשובה הנכונה היא: ${currentCorrectWord}`;
+        feedback.textContent = `לֹא נָכוֹן. הַתְּשׁוּבָה הַנְּכוֹנָה הִיא: ${currentCorrectWord}`;
 
         const buttons = optionsContainer.querySelectorAll("button");
         buttons.forEach((btn) => {
@@ -88,6 +113,7 @@ function handleAnswer(button, selectedWord) {
     }
 
     updateScore();
+    renderWordScores();
     lockOptions();
 
     if (totalQuestions >= MAX_QUESTIONS) {
@@ -138,12 +164,15 @@ function restartGame() {
     totalQuestions = 0;
     score = 0;
     gameEnded = false;
+    wordScores = createWordScores();
 
     updateScore();
+    renderWordScores();
     nextRound();
 }
 
 nextBtn.addEventListener("click", nextRound);
 restartBtn.addEventListener("click", restartGame);
 updateScore();
+renderWordScores();
 nextRound();
