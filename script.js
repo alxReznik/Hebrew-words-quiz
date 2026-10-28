@@ -1,6 +1,8 @@
 const allEntries = Object.entries(images);
-const MAX_QUESTIONS = 25;
-const WIN_SCORE = 20;
+const MAX_QUESTIONS = 100;
+const WIN_SCORE = 95;
+const CORRECT_DELAY_MS = 1000;
+const WRONG_DELAY_MS = 5000;
 
 if (allEntries.length < 4) {
     throw new Error("At least 4 words are required for this quiz.");
@@ -12,11 +14,11 @@ let totalQuestions = 0;
 let score = 0;
 let gameEnded = false;
 let wordScores = createWordScores();
+let advanceTimeoutId = null;
 
 const quizImage = document.getElementById("quiz-image");
 const optionsContainer = document.getElementById("options");
 const feedback = document.getElementById("feedback");
-const nextBtn = document.getElementById("next-btn");
 const scoreLabel = document.getElementById("score");
 const restartBtn = document.getElementById("restart-btn");
 const wordScoresContainer = document.getElementById("word-scores");
@@ -57,12 +59,16 @@ function pickRandomEntry(pool) {
 }
 
 function updateScore() {
-    scoreLabel.textContent = `נִיקּוּד: ${score} | שְׁאֵלָה ${totalQuestions} / ${MAX_QUESTIONS}`;
+    const remainingQuestions = MAX_QUESTIONS - totalQuestions;
+    scoreLabel.textContent = `נִיקּוּד: ${score} | נוֹתְרוּ שְׁאֵלוֹת: ${remainingQuestions}`;
 }
 
 function endGame() {
     gameEnded = true;
-    nextBtn.hidden = true;
+    if (advanceTimeoutId !== null) {
+        clearTimeout(advanceTimeoutId);
+        advanceTimeoutId = null;
+    }
 
     if (score >= WIN_SCORE) {
         feedback.textContent = `נִיצַּחְתָּ! עָנִיתָ נָכוֹן עַל ${score} מִתּוֹךְ ${MAX_QUESTIONS}.`;
@@ -87,6 +93,17 @@ function lockOptions() {
     });
 }
 
+function scheduleNextRound(delay) {
+    if (advanceTimeoutId !== null) {
+        clearTimeout(advanceTimeoutId);
+    }
+
+    advanceTimeoutId = setTimeout(() => {
+        advanceTimeoutId = null;
+        nextRound();
+    }, delay);
+}
+
 function handleAnswer(button, selectedWord) {
     if (gameEnded) {
         return;
@@ -94,11 +111,14 @@ function handleAnswer(button, selectedWord) {
 
     totalQuestions += 1;
 
+    let nextDelay = WRONG_DELAY_MS;
+
     if (selectedWord === currentCorrectWord) {
         score += 1;
         wordScores[currentCorrectWord].correct += 1;
         button.classList.add("correct");
         feedback.textContent = "נָכוֹן!";
+        nextDelay = CORRECT_DELAY_MS;
     } else {
         wordScores[currentCorrectWord].wrong += 1;
         button.classList.add("wrong");
@@ -121,7 +141,7 @@ function handleAnswer(button, selectedWord) {
         return;
     }
 
-    nextBtn.hidden = false;
+    scheduleNextRound(nextDelay);
 }
 
 function nextRound() {
@@ -155,10 +175,14 @@ function nextRound() {
     });
 
     feedback.textContent = "";
-    nextBtn.hidden = true;
 }
 
 function restartGame() {
+    if (advanceTimeoutId !== null) {
+        clearTimeout(advanceTimeoutId);
+        advanceTimeoutId = null;
+    }
+
     roundPool = [...allEntries];
     currentCorrectWord = "";
     totalQuestions = 0;
@@ -171,7 +195,6 @@ function restartGame() {
     nextRound();
 }
 
-nextBtn.addEventListener("click", nextRound);
 restartBtn.addEventListener("click", restartGame);
 updateScore();
 renderWordScores();
