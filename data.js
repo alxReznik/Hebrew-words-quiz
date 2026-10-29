@@ -1,4 +1,3 @@
-
 const images = {
     "קֶמַח": "https://shezifron.co.il/wp-content/uploads/2024/02/%D7%A7%D7%9E%D7%97-%D7%97%D7%99%D7%98%D7%94-%D7%9E%D7%9C%D7%90.jpg",
     "לֶחֶם": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9r20fXs-9_GM8648Ok4X6NOsgymkqJeb6ddmI0V_O7Q&s=10",
@@ -10,24 +9,23 @@ const images = {
     "אֲדָמָה": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDCJEjIZMD9_-D95380gD2XG3kKTV5H1DrMj-BzeF66w&s=10",
     "שֹׁרֶשׁ": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRxAc9wHsHSNiscD96TBFc69eCFpWuEEQ7scQ-striEvw&s=10",
     "עֵץ": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK3o6MZrNDNT-7PNnrcc2qdzlahhZ-QTRF8mdEgdzdiw&s=10",
-
     "סֶלֶק": "https://www.swanhillfresh.com/cdn/shop/files/BEETKHE_79b69fe5-2b9f-4a89-90a0-f95fa84549e4.png?v=1726654584",
-
     "עַגְבָנִיָּה": "https://static.wixstatic.com/media/944b60_a1e520768eae43af8b9469601e29db8f~mv2.jpg/v1/fit/w_500%2Ch_500%2Cq_90/file.jpg",
-
     "מְלָפְפוֹן": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSo7tuR_UiJp82z0-bIjToyiMcYUujYj4YqJEEUhZMkZiYI9kMZFAPcy7lU366Mbzp82QpSOv6SRJEPRZ3mGq_XBV3nHrQgGGGIF5BighlUEQ&s=10",
-
     "תִּירָס": "https://img.pikbest.com/photo/20250413/unpeeled-yellow-corn-cob-in-high-resolution_11663761.jpg%21sw800",
-
     "תַּפּוּחַ אֲדָמָה": "https://images.unsplash.com/photo-1518977676601-b53f82aba655",
-
     "תַּפּוּחַ": "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6",
-
     "בָּנָנָה": "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e",
-
     "תַּפּוּז": "https://images.unsplash.com/photo-1547514701-42782101795e",
-
     "תּוּת": "https://images.unsplash.com/photo-1464965911861-746a04b4bca6",
-
-    "עֲנָבִים": "https://images.unsplash.com/photo-1537640538966-79f369143f8f"
+    "עֲנָבִים": "https://images.unsplash.com/photo-1537640538966-79f369143f8f",
+    "דֶּלֶת": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVBVoz5vbClZtujh3-Ch8-axAoocHaHpOVwbOtn6cW8A&s=10",
+    "חַלּוֹן": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8mnyCPl7kJm2yeROvl5-ob0hffteP03mlB3eqK0RF5w&s=10",
+    "שֻׁלְחָן": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQleOL_Kvw6vr55mh1b7HUheQcn-q-8Ef6Oi8CJbiK33w&s=10",
+    "כִּסֵּא": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5V8acnrm5zI4Br1YEXKaZj27bpHa3zbKzmXOxqpYWhg&s=10",
+    "מִטָּה": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+    "סַפָּה": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc",
+    "מְנוֹרָה": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c",
+    "מַרְאָה": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSudfq5uOMNq1a5SwHlNsGYex5PMDtac6eLBLknjJu0-A&s=10",
+    "אָרוֹן": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHb4TBdVX9OkeWH0XxSi4Iha8U3GBrutqfPOAMAOM8ZA&s=10"
 };
