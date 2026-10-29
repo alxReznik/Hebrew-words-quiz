@@ -11,19 +11,29 @@
 <body>
     <main class="quiz-container">
         <button id="restart-btn" class="restart-btn" type="button">הַתְחֵל מֵחָדָשׁ</button>
-        <h1>הַתְאֵם מִלָּה לַתְּמוּנָה</h1>
+        <button id="math-toggle-btn" class="math-toggle-btn" type="button">חֶשְׁבּוֹן</button>
+        <h1 id="app-title">הַתְאֵם מִלָּה לַתְּמוּנָה</h1>
         <p id="score">נִיקּוּד: 0 | נוֹתְרוּ שְׁאֵלוֹת: 100</p>
 
-        <div class="image-wrapper">
-            <img id="quiz-image" alt="תְּמוּנַת שְׁאֵלָה" />
-        </div>
+        <section id="words-section">
+            <div class="image-wrapper">
+                <img id="quiz-image" alt="תְּמוּנַת שְׁאֵלָה" />
+            </div>
 
-        <div id="options" class="options"></div>
+            <div id="options" class="options"></div>
+        </section>
+
+        <section id="math-section" class="math-section" hidden>
+            <p id="math-problem" class="math-problem" dir="ltr"></p>
+            <div id="math-options" class="options"></div>
+        </section>
 
         <p id="feedback" class="feedback"></p>
     </main>
 
     <script src="data.js"></script>
+    <script src="word-quiz.js"></script>
+    <script src="math-quiz.js"></script>
     <script src="script.js"></script>
 </body>
 
