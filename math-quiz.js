@@ -1,20 +1,45 @@
 function createMathQuizModule(config) {
     const {
         maxQuestions,
+        winScore,
         correctDelayMs,
         wrongDelayMs,
         feedback,
         mathProblem,
         mathOptionsContainer,
-        onStatsChange
+        wrongLogContainer,
+        onStatsChange,
+        onGameEnd
     } = config;
 
     let totalQuestions = 0;
     let score = 0;
     let gameEnded = false;
     let currentQuestion = null;
+    let wrongAnswersLog = [];
     let advanceTimeoutId = null;
     let active = false;
+
+    function renderWrongAnswersLog() {
+        if (!wrongLogContainer) {
+            return;
+        }
+
+        if (wrongAnswersLog.length === 0) {
+            wrongLogContainer.textContent = "אין טעויות עדיין.";
+            return;
+        }
+
+        wrongLogContainer.innerHTML = wrongAnswersLog
+            .map((entry) => `
+                <div class="wrong-log-item">
+                    <strong>שאלה:</strong> ${entry.question}<br>
+                    <strong>התשובה הנכונה:</strong> ${entry.correctAnswer}<br>
+                    <strong>התשובה שלך:</strong> ${entry.userAnswer}
+                </div>
+            `)
+            .join("");
+    }
 
     function clearAdvanceTimeout() {
         if (advanceTimeoutId !== null) {
@@ -43,7 +68,7 @@ function createMathQuizModule(config) {
     function buildMathQuestion() {
         const operators = ["*", "/"];
         const operator = operators[Math.floor(Math.random() * operators.length)];
-        const factor = Math.random() < 0.5 ? 1 : 2;
+        const factor = 2;
 
         if (operator === "*") {
             const number = Math.floor(Math.random() * 10) + 1;
@@ -53,14 +78,12 @@ function createMathQuizModule(config) {
             };
         }
 
-        let dividend = Math.floor(Math.random() * 10) + 1;
-        if (factor === 2 && dividend % 2 !== 0) {
-            dividend = dividend === 10 ? 8 : dividend + 1;
-        }
+        const quotient = Math.floor(Math.random() * 10) + 1;
+        const dividend = quotient * factor;
 
         return {
             text: `${dividend} ÷ ${factor} = ?`,
-            answer: dividend / factor
+            answer: quotient
         };
     }
 
@@ -114,7 +137,20 @@ function createMathQuizModule(config) {
     function endGame() {
         gameEnded = true;
         clearAdvanceTimeout();
-        feedback.textContent = `סִיּוּם חֶשְׁבּוֹן: ${score} נְכוֹנוֹת מִתּוֹךְ ${maxQuestions}.`;
+        if (score >= winScore) {
+            feedback.textContent = `נִיצַּחְתָּ בְּחֶשְׁבּוֹן! עָנִיתָ נָכוֹן עַל ${score} מִתּוֹךְ ${maxQuestions}.`;
+        } else {
+            feedback.textContent = `סִיּוּם חֶשְׁבּוֹן: ${score} נְכוֹנוֹת מִתּוֹךְ ${maxQuestions}.`;
+        }
+
+        if (onGameEnd) {
+            onGameEnd({
+                didWin: score >= winScore,
+                score,
+                maxQuestions,
+                wrongCount: wrongAnswersLog.length
+            });
+        }
         lockOptions();
     }
 
@@ -151,6 +187,11 @@ function createMathQuizModule(config) {
         } else {
             button.classList.add("wrong");
             feedback.textContent = `לֹא נָכוֹן. הַתְּשׁוּבָה הַנְּכוֹנָה הִיא: ${currentQuestion.answer}`;
+            wrongAnswersLog.push({
+                question: currentQuestion.text,
+                correctAnswer: String(currentQuestion.answer),
+                userAnswer: String(selectedValue)
+            });
 
             const buttons = mathOptionsContainer.querySelectorAll("button");
             buttons.forEach((btn) => {
@@ -161,6 +202,7 @@ function createMathQuizModule(config) {
         }
 
         notifyStatsChange();
+        renderWrongAnswersLog();
 
         if (totalQuestions >= maxQuestions) {
             endGame();
@@ -173,6 +215,7 @@ function createMathQuizModule(config) {
     function activate() {
         active = true;
         notifyStatsChange();
+        renderWrongAnswersLog();
         if (gameEnded || currentQuestion === null) {
             nextRound();
             return;
@@ -191,10 +234,16 @@ function createMathQuizModule(config) {
         score = 0;
         gameEnded = false;
         currentQuestion = null;
+        wrongAnswersLog = [];
         mathProblem.textContent = "";
         mathOptionsContainer.innerHTML = "";
 
         notifyStatsChange();
+        renderWrongAnswersLog();
+
+        if (onGameEnd) {
+            onGameEnd(null);
+        }
 
         if (active) {
             nextRound();

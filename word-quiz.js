@@ -9,7 +9,9 @@ function createWordQuizModule(config) {
         optionsContainer,
         feedback,
         wordScoresContainer,
-        onStatsChange
+        wrongLogContainer,
+        onStatsChange,
+        onGameEnd
     } = config;
 
     let roundPool = [...allEntries];
@@ -18,6 +20,7 @@ function createWordQuizModule(config) {
     let score = 0;
     let gameEnded = false;
     let wordScores = createWordScores();
+    let wrongAnswersLog = [];
     let advanceTimeoutId = null;
     let active = false;
 
@@ -40,6 +43,27 @@ function createWordQuizModule(config) {
         });
 
         wordScoresContainer.innerHTML = rows.join("");
+    }
+
+    function renderWrongAnswersLog() {
+        if (!wrongLogContainer) {
+            return;
+        }
+
+        if (wrongAnswersLog.length === 0) {
+            wrongLogContainer.textContent = "אין טעויות עדיין.";
+            return;
+        }
+
+        wrongLogContainer.innerHTML = wrongAnswersLog
+            .map((entry) => `
+                <div class="wrong-log-item">
+                    <strong>שאלה:</strong> ${entry.question}<br>
+                    <strong>התשובה הנכונה:</strong> ${entry.correctAnswer}<br>
+                    <strong>התשובה שלך:</strong> ${entry.userAnswer}
+                </div>
+            `)
+            .join("");
     }
 
     function shuffle(array) {
@@ -105,6 +129,15 @@ function createWordQuizModule(config) {
         } else {
             feedback.textContent = `הִפְסַדְתָּ. עָנִיתָ נָכוֹן עַל ${score} מִתּוֹךְ ${maxQuestions}.`;
         }
+
+        if (onGameEnd) {
+            onGameEnd({
+                didWin: score >= winScore,
+                score,
+                maxQuestions,
+                wrongCount: wrongAnswersLog.length
+            });
+        }
     }
 
     function handleAnswer(button, selectedWord) {
@@ -125,6 +158,11 @@ function createWordQuizModule(config) {
             wordScores[currentCorrectWord].wrong += 1;
             button.classList.add("wrong");
             feedback.textContent = `לֹא נָכוֹן. הַתְּשׁוּבָה הַנְּכוֹנָה הִיא: ${currentCorrectWord}`;
+            wrongAnswersLog.push({
+                question: currentCorrectWord,
+                correctAnswer: currentCorrectWord,
+                userAnswer: selectedWord
+            });
 
             const buttons = optionsContainer.querySelectorAll("button");
             buttons.forEach((btn) => {
@@ -136,6 +174,7 @@ function createWordQuizModule(config) {
 
         notifyStatsChange();
         renderWordScores();
+        renderWrongAnswersLog();
         lockOptions();
 
         if (totalQuestions >= maxQuestions) {
@@ -182,6 +221,7 @@ function createWordQuizModule(config) {
     function activate() {
         active = true;
         notifyStatsChange();
+        renderWrongAnswersLog();
         if (!currentCorrectWord && !gameEnded) {
             nextRound();
         }
@@ -200,9 +240,15 @@ function createWordQuizModule(config) {
         score = 0;
         gameEnded = false;
         wordScores = createWordScores();
+        wrongAnswersLog = [];
 
         notifyStatsChange();
         renderWordScores();
+        renderWrongAnswersLog();
+
+        if (onGameEnd) {
+            onGameEnd(null);
+        }
 
         if (active) {
             nextRound();
@@ -219,6 +265,7 @@ function createWordQuizModule(config) {
     }
 
     renderWordScores();
+    renderWrongAnswersLog();
 
     return {
         activate,
